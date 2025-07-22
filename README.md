@@ -58,6 +58,13 @@ The application is deployed using Cloudflare Pages.
 
 ## Testing
 
-**Note:** This section is under development.
-
 The primary focus for testing will be to compare the output of `process_gcode.js` with the original `gcode_translator_10_17_24.py` script to ensure accuracy and consistency in G-code generation. Detailed testing procedures will be added here in the future.
+
+1. **Install Dev dependencies**
+    ```bash
+    npm install -D
+    ```
+2. **Run all tests**
+    ```bash
+    npm run test
+    ```
