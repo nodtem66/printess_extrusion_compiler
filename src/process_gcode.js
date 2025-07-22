@@ -1,3 +1,6 @@
+const ABSOLUTE_MODE = 0;
+const RELATIVE_MODE = 1;
+
 /**
  * Finds the first sequence of digits (with optional decimal) in a given line.
  * Equivalent to Python's `re.search('\d+\.?\d*', line)`.
@@ -27,8 +30,8 @@ function processGcode(
   const content = gcodeContent.split('\n'); // Split content into lines
 
   // Determine coordinate type (G90 Absolute or G91 Relative)
-  const coordinate_type = content[0].includes('G90') ? 0 : 1;
-  if (coordinate_type === 0) {
+  const coordinate_type = content[0].includes('G90') ? ABSOLUTE_MODE : RELATIVE_MODE;
+  if (coordinate_type === ABSOLUTE_MODE) {
     logMessage('You are currently in G90 ABSOLUTE mode.');
   } else {
     logMessage('You are currently in G91 RELATIVE mode.');
@@ -57,7 +60,7 @@ function processGcode(
   let newGcodeContent = ''; // String to build the new G-code file content
 
   // Write initial G-code mode to the new file
-  if (coordinate_type === 0) {
+  if (coordinate_type === ABSOLUTE_MODE) {
     newGcodeContent += 'G90\n';
   } else {
     newGcodeContent += 'G91\n';
@@ -190,7 +193,7 @@ function processGcode(
 
     // G1 (Linear Move) calculation
     if (g === 1) {
-      if (coordinate_type === 1) { // Relative mode (G91)
+      if (coordinate_type === RELATIVE_MODE) { // Relative mode (G91)
         l = Math.sqrt(x_val ** 2 + y_val ** 2 + a_val ** 2 + z_val ** 2);
       } else { // Absolute mode (G90)
         l = Math.sqrt(x_rel ** 2 + y_rel ** 2 + a_rel ** 2 + z_rel ** 2);
@@ -204,7 +207,7 @@ function processGcode(
       }
 
       let theta;
-      if (coordinate_type === 1) { // Relative mode (G91)
+      if (coordinate_type === RELATIVE_MODE) { // Relative mode (G91)
         if (x_val !== 0 || y_val !== 0 || z_val !== 0 || a_val !== 0) {
           const d = Math.sqrt(x_val ** 2 + y_val ** 2 + a_val ** 2 + z_val ** 2);
           // Ensure argument to acos is within [-1, 1] to prevent NaN
@@ -233,7 +236,7 @@ function processGcode(
     }
 
     // Calculate extrusion 'E' value
-    if (coordinate_type === 1) { // Relative mode (G91)
+    if (coordinate_type === RELATIVE_MODE) { // Relative mode (G91)
       if (extruder === 0) {
         e = (extrusion_coefficient * l * Z_nozzle_diameter ** 2) / (Z_syringe_diameter ** 2);
       } else if (extruder === 1) {
@@ -249,7 +252,7 @@ function processGcode(
         e = e1 + (extrusion_coefficient * l * A_nozzle_diameter ** 2) / (A_syringe_diameter ** 2);
       }
       if (e !== null && !isNaN(e)) { // Only add if e is a valid number
-        netExtrude += e;
+        netExtrude += e - e1; // Increment netExtrude by the difference
       }
     }
 
@@ -301,7 +304,7 @@ function processGcode(
       // In Python, `e` is calculated, then `netExtrude` is incremented. If 'NO E' is found,
       // `e` is then decremented from `netExtrude`.
       // Here, we ensure `netExtrude` is correctly adjusted if 'NO E' is present.
-      if (coordinate_type === 0 && e !== null && !isNaN(e)) {
+      if (coordinate_type === ABSOLUTE_MODE && e !== null && !isNaN(e)) {
         let undo_e_val = 0;
         if (extruder === 0) {
           undo_e_val = (extrusion_coefficient * l * Z_nozzle_diameter ** 2) / (Z_syringe_diameter ** 2);
@@ -309,7 +312,7 @@ function processGcode(
           undo_e_val = (extrusion_coefficient * l * A_nozzle_diameter ** 2) / (A_syringe_diameter ** 2);
         }
         netExtrude -= undo_e_val;
-      } else if (coordinate_type === 1 && e !== null && !isNaN(e)) {
+      } else if (coordinate_type === RELATIVE_MODE && e !== null && !isNaN(e)) {
           // For G91, if 'NO E' is present, the calculated 'e' should not have been added to netExtrude.
           // Since it was already added, we subtract it.
           netExtrude -= e;
