@@ -108,14 +108,17 @@ function Help(props) {
         <section>
           <h3 class="text-xl font-semibold text-gray-800 mb-3">Example Input</h3>
           <div class="bg-gray-100 p-4 rounded-lg font-mono text-sm">
-            <div>G90</div>
-            <div>Z syringe diameter = 30</div>
-            <div>A syringe diameter = 30</div>
-            <div>Z nozzle diameter = 0.84</div>
-            <div>A nozzle diameter = 0.84</div>
-            <div>extrusion coefficient = 1.0</div>
-            <div>G1 X10 Y10 F1500</div>
-            <div>G1 X20 Y20</div>
+            <div>G91</div>
+            <div>; Z syringe diameter = 30</div>
+            <div>; A syringe diameter = 30</div>
+            <div>; Z nozzle diameter = 0.84</div>
+            <div>; A nozzle diameter = 0.84</div>
+            <div>; extrusion coefficient = 1.0</div>
+            <div>B ; Use printhead 1 with Z axis</div>
+            <div>G1 X10 Y10 F500 ; Move +10 mm, +10 mm in both x and y directions with a speed of 500 mm/min and extrude material</div>
+            <div>G0 Z1 ; Move +1 mm in Z axis with previous speed (500 mm/min) without material extrusion</div>
+            <div>K = 2 ; Change extrusion coefficient to 2</div>
+            <div>G1 X10 ; Move +10 mm in X axis and extrude material</div>
           </div>
         </section>
 
