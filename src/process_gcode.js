@@ -332,6 +332,9 @@ function processGcode(
   // Calculate total volume extruded
   const netVol = (netExtrude * Math.PI * (Z_syringe_diameter / 2) ** 2) / 1000;
 
+  newGcodeContent += `; Total Extrusion: ${netExtrude.toFixed(3)} mm\n`;
+  newGcodeContent += `; Total Volume: ${netVol.toFixed(3)} mm^3\n`;
+
   return {
     newGcodeContent,
     netExtrude,
